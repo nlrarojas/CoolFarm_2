@@ -1,0 +1,36 @@
+<RCC>
+    <qresource prefix="/">
+        <file>imagenes/29a5845622ab4133efd6d988877a7bb3.png</file>
+        <file>imagenes/abb.png</file>
+        <file>imagenes/af1b93989e2a1e74580f8299ee2cfe23.png</file>
+        <file>imagenes/Arbol-Amarillo.png</file>
+        <file>imagenes/avl.png</file>
+        <file>imagenes/Binario.jpg</file>
+        <file>imagenes/button.png</file>
+        <file>imagenes/button_cancelar.png</file>
+        <file>imagenes/button_cargar-partida.png</file>
+        <file>imagenes/button_iniciar.png</file>
+        <file>imagenes/button_opciones.png</file>
+        <file>imagenes/button_ver-puntajes.png</file>
+        <file>imagenes/cuervo.png</file>
+        <file>imagenes/delonix_regia.png</file>
+        <file>imagenes/dibujos-de-arboles-6.png</file>
+        <file>imagenes/ea5173f47e6e264101c444ca7807639e_-animated-forest-background-animated-background-clipart_564-423.jpg</file>
+        <file>imagenes/espantapajaros.png</file>
+        <file>imagenes/fa366f5ea75389f02ba706401d44a93f.png</file>
+        <file>imagenes/Forest-of-the-Giant-Trees.png</file>
+        <file>imagenes/granjero.png</file>
+        <file>imagenes/heap.png</file>
+        <file>imagenes/Heap2.png</file>
+        <file>imagenes/mercado.jpg</file>
+        <file>imagenes/oveja.png</file>
+        <file>imagenes/pine_forest_by_boneswolbach-d9tshtb.png</file>
+        <file>imagenes/plaga.png</file>
+        <file>imagenes/rojinegro.png</file>
+        <file>imagenes/The_Forest_of_the_Giant_Trees_zpsafb87b8e.png</file>
+        <file>imagenes/tierra.png</file>
+        <file>imagenes/tierra1.jpg</file>
+        <file>imagenes/Topsoil2.jpg</file>
+        <file>imagenes/tree-304181_640.png</file>
+    </qresource>
+</RCC>
