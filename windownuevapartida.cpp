@@ -75,10 +75,13 @@ windownuevapartida::windownuevapartida(QWidget *parent) :
     timer->start(250);
     mercadoPlataforma->start();
 
-    controlador = new ControladorHilos(matrizArboles, matrizJuego,
+    controladorArboles = new ControladorHilos(matrizArboles, matrizJuego,
                                        tiposInfoArboles->buscarTipoArbol("ABB"),    tiposInfoArboles->buscarTipoArbol("AVL"),
                                        tiposInfoArboles->buscarTipoArbol("HEAP"),   tiposInfoArboles->buscarTipoArbol("ROJINEGRO"));
-    controlador->start();
+    controladorArboles->start();
+
+    controladorPlagas = new GeneradorPlagas(lista, matrizJuego);
+    controladorPlagas->start();
 }
 
 windownuevapartida::~windownuevapartida()
@@ -88,6 +91,7 @@ windownuevapartida::~windownuevapartida()
 
 void windownuevapartida::actualizarDatosGUI(){
     plaga * plagaActualizar;
+    //Actualizarción valores de las plagas
     if(tipoPlaga == 1){
         plagaActualizar = lista->buscarPlaga("Ovejas");
         plagaActualizar->tasaPlagas = ui->spinBox_64->text().toInt();
@@ -155,8 +159,6 @@ void windownuevapartida::actualizarDatosGUI(){
     infoMercado->rangoInferior = ui->spinBox_75->text().toInt();
     infoMercado->rangoSuperior = ui->spinBox_4->text().toInt();
     mercadoPlataforma->mercado = infoMercado;
-
-    //granjero->tiempoDesplazamiento = ui->spinBox_80->text().toInt();
 
     ui->label_cantidad_AVL->setText("AVL x " + QString::number(cantidadArbolesAVL));
     ui->label_cantidad_ABB->setText("Árbol binario x " + QString::number(cantidadArbolesABB));
@@ -275,11 +277,14 @@ void windownuevapartida::pintarTablero(){
                 terreno[i][j]->setPixmap(QPixmap(":/imagenes/rojinegro.png"));
             } else if(matrizJuego->matrizJuego[i][j] == 6){
                 terreno[i][j]->setPixmap(QPixmap(":/imagenes/espantapajaros.png"));
-            } else if(matrizJuego->matrizJuego[i][j] == 7){
+            }
+            if(matrizJuego->estado[i][j] == 7){
                 terreno[i][j]->setPixmap(QPixmap(":/imagenes/cuervo.png"));
-            } else if(matrizJuego->matrizJuego[i][j] == 8){
+            }
+            if(matrizJuego->estado[i][j] == 8){
                 terreno[i][j]->setPixmap(QPixmap(":/imagenes/plaga.png"));
-            } else if(matrizJuego->matrizJuego[i][j] == 9){
+            }
+            if(matrizJuego->estado[i][j] == 9){
                 terreno[i][j]->setPixmap(QPixmap(":/imagenes/oveja.png"));
             }
         }
@@ -401,16 +406,21 @@ void windownuevapartida::sembrarArbolAVL(){
     if(matrizJuego->matrizJuego[granjero->posX][granjero->posY] == 0 || matrizJuego->matrizJuego[granjero->posX][granjero->posY] == -1
             || matrizJuego->matrizJuego[granjero->posX][granjero->posY] == 2){
         if(!avlComprados->isEmpty()){
-            Avl * temporal = avlComprados->desEncolar()->arbolAVL;
-            NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, temporal, NULL, NULL, "AVL");
-            matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
-            matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 3;
-            nuevoNodoArbolesTerreno->posX = granjero->posX;
-            nuevoNodoArbolesTerreno->posY = granjero->posY;
-            listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
-            matrizJuego->estado[granjero->posX][granjero->posY] += 2;
-            cantidadArbolesAVL--;
-            insertarEnTablaArboles();
+            if(validarInfoArbol("AVL")){
+                if(validarInfoPlagas()){
+                    Avl * temporal = avlComprados->desEncolar()->arbolAVL;
+                    NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, temporal, NULL, NULL, "AVL");
+                    matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
+                    matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 3;
+                    nuevoNodoArbolesTerreno->posX = granjero->posX;
+                    nuevoNodoArbolesTerreno->posY = granjero->posY;
+                    listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
+                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    cantidadArbolesAVL--;
+                    insertarEnTablaArboles();
+                    controladorPlagas->cambiarEstado(1);
+                }
+            }
         }else{
             mostrarMensaje("No tiene árboles disponibles debe de comprar");
         }
@@ -424,16 +434,19 @@ void windownuevapartida::sembrarArbolABB(){
             || matrizJuego->matrizJuego[granjero->posX][granjero->posY] == 2){
         if(!abbComprados->isEmpty()){
             if(validarInfoArbol("ABB")){
-                Arbol * temporal = abbComprados->desEncolar()->arbolABB;
-                NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(temporal, NULL, NULL, NULL, "ABB");
-                matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
-                matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 4;
-                matrizJuego->estado[granjero->posX][granjero->posY] += 2;
-                nuevoNodoArbolesTerreno->posX = granjero->posX;
-                nuevoNodoArbolesTerreno->posY = granjero->posY;
-                listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
-                cantidadArbolesABB--;
-                insertarEnTablaArboles();
+                if(validarInfoPlagas()){
+                    Arbol * temporal = abbComprados->desEncolar()->arbolABB;
+                    NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(temporal, NULL, NULL, NULL, "ABB");
+                    matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
+                    matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 4;
+                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    nuevoNodoArbolesTerreno->posX = granjero->posX;
+                    nuevoNodoArbolesTerreno->posY = granjero->posY;
+                    listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
+                    cantidadArbolesABB--;
+                    insertarEnTablaArboles();
+                    controladorPlagas->cambiarEstado(1);
+                }
             }
         }else{
             mostrarMensaje("No tiene árboles disponibles debe de comprar");
@@ -447,16 +460,21 @@ void windownuevapartida::sembrarArbolHEAP(){
     if(matrizJuego->matrizJuego[granjero->posX][granjero->posY] == 0 || matrizJuego->matrizJuego[granjero->posX][granjero->posY] == -1
             || matrizJuego->matrizJuego[granjero->posX][granjero->posY] == 2){
         if(!heapComprados->isEmpty()){
-            Heap * temporal = heapComprados->desEncolar()->arbolHeap;
-            NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, NULL, temporal, NULL, "HEAP");
-            matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
-            matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 10;
-            matrizJuego->estado[granjero->posX][granjero->posY] += 2;
-            nuevoNodoArbolesTerreno->posX = granjero->posX;
-            nuevoNodoArbolesTerreno->posY = granjero->posY;
-            listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
-            cantidadArbolesHeap--;
-            insertarEnTablaArboles();
+            if(validarInfoArbol("ABB")){
+                if(validarInfoPlagas()){
+                    Heap * temporal = heapComprados->desEncolar()->arbolHeap;
+                    NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, NULL, temporal, NULL, "HEAP");
+                    matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
+                    matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 10;
+                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    nuevoNodoArbolesTerreno->posX = granjero->posX;
+                    nuevoNodoArbolesTerreno->posY = granjero->posY;
+                    listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
+                    cantidadArbolesHeap--;
+                    insertarEnTablaArboles();
+                    controladorPlagas->cambiarEstado(1);
+                }
+            }
         }else{
             mostrarMensaje("No tiene árboles disponibles debe de comprar");
         }
@@ -469,16 +487,21 @@ void windownuevapartida::sembrarArbolRojiNegro(){
     if(matrizJuego->matrizJuego[granjero->posX][granjero->posY] == 0 || matrizJuego->matrizJuego[granjero->posX][granjero->posY] == -1
             || matrizJuego->matrizJuego[granjero->posX][granjero->posY] == 2){
         if(!rojiNegroComprados->isEmpty()){
-            Arbol * temporal = rojiNegroComprados->desEncolar()->arbolABB;
-            NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, NULL, NULL, temporal, "ROJINEGRO");
-            matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
-            matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 5;
-            matrizJuego->estado[granjero->posX][granjero->posY] += 2;
-            nuevoNodoArbolesTerreno->posX = granjero->posX;
-            nuevoNodoArbolesTerreno->posY = granjero->posY;
-            listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
-            cantitadArbolesRojiNegro--;
-            insertarEnTablaArboles();
+            if(validarInfoArbol("ABB")){
+                if(validarInfoPlagas()){
+                    Arbol * temporal = rojiNegroComprados->desEncolar()->arbolABB;
+                    NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, NULL, NULL, temporal, "ROJINEGRO");
+                    matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
+                    matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 5;
+                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    nuevoNodoArbolesTerreno->posX = granjero->posX;
+                    nuevoNodoArbolesTerreno->posY = granjero->posY;
+                    listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
+                    cantitadArbolesRojiNegro--;
+                    insertarEnTablaArboles();
+                    controladorPlagas->cambiarEstado(1);
+                }
+            }
         }else{
             mostrarMensaje("No tiene árboles disponibles debe de comprar");
         }
@@ -675,6 +698,29 @@ bool windownuevapartida::validarInfoArbol(QString tipoArbol){
     return true;
 }
 
+bool windownuevapartida::validarInfoPlagas(){
+    plaga * plagaOveja = lista->buscarPlaga("Ovejas");
+    plaga * plagaCuervos = lista->buscarPlaga("Cuervos");
+    plaga * plagaPlagas = lista->buscarPlaga("Plagas");
+
+    if(plagaOveja->probabilidad == 0 || plagaOveja->tasaFrutos == 0 || plagaOveja->tasaPlagas== 0 ||
+            plagaOveja->tiempoConsumeFrutos == 0 || plagaOveja->tiempo == 0){
+        mostrarMensaje("Debe de configurar la información de las plagas de tipo Oveja\nLa información de la plaga no puede tener 0 como valor");
+        return false;
+    }
+    if(plagaCuervos->probabilidad == 0 || plagaCuervos->tasaFrutos == 0 || plagaCuervos->tasaPlagas== 0 ||
+            plagaCuervos->tiempoConsumeFrutos == 0 || plagaCuervos->tiempo == 0){
+        mostrarMensaje("Debe de configurar la información de las plagas de tipo Cuervos\nLa información de la plaga no puede tener 0 como valor");
+        return false;
+    }
+    if(plagaPlagas->probabilidad == 0 || plagaPlagas->tasaFrutos == 0 || plagaPlagas->tasaPlagas== 0 ||
+            plagaPlagas->tiempoConsumeFrutos == 0 || plagaPlagas->tiempo == 0){
+        mostrarMensaje("Debe de configurar la información de las plagas\nLa información de la plaga no puede tener 0 como valor");
+        return false;
+    }
+    return true;
+}
+
 void windownuevapartida::protegerAdyacentes(int x, int y){
     if (y-1 > -1 && x-1> -1){
         if (matrizJuego->estado[x-1][y-1] == 1)
@@ -721,12 +767,14 @@ void windownuevapartida::protegerAdyacentes(int x, int y){
 
 void windownuevapartida::on_toolButton_clicked()
 {
-    controlador->cambiarEstado(2);
+    controladorArboles->cambiarEstado(2);
+    controladorPlagas->cambiarEstado(2);
     ui->label_estado_juego->setText("Estado: Pausado");
 }
 
 void windownuevapartida::on_toolButton_8_clicked()
 {
-    controlador->cambiarEstado(3);
+    controladorArboles->cambiarEstado(3);
+    controladorPlagas->cambiarEstado(3);
     ui->label_estado_juego->setText("Estado: Activo");
 }

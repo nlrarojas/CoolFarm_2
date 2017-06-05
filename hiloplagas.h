@@ -14,11 +14,13 @@ class HiloPlagas : public QThread
 private:
     QMutex mutex;
     void run(void);
-    int aleatorio(void);
 
 public:
     HiloPlagas();
-
+    Matriz * matrizJuego;
+    plaga * plagas;
+    bool estado;
+    int aleatorio(void);
 };
 
 #endif // HILOPLAGAS_H

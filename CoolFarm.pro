@@ -35,7 +35,10 @@ SOURCES += main.cpp\
     hiloavl.cpp \
     hiloheap.cpp \
     hilorojinegro.cpp \
-    hiloplagas.cpp
+    hiloplagas.cpp \
+    generadorplagas.cpp \
+    hilocuervos.cpp \
+    hiloovejas.cpp
 
 HEADERS  += mainwindow.h \
     windownuevapartida.h \
@@ -50,7 +53,10 @@ HEADERS  += mainwindow.h \
     hiloavl.h \
     hiloheap.h \
     hilorojinegro.h \
-    hiloplagas.h
+    hiloplagas.h \
+    generadorplagas.h \
+    hilocuervos.h \
+    hiloovejas.h
 
 FORMS    += mainwindow.ui \
     windownuevapartida.ui

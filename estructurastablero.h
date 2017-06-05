@@ -97,7 +97,6 @@ struct ListaPlagas{
             primerNodo = pPlaga;
         }
     }
-
     plaga * buscarPlaga(QString nombrePlaga){
         if(primerNodo == NULL){
             return NULL;

@@ -16,6 +16,7 @@
 #include "heap.h"
 #include "hiloabb.h"
 #include "controladorhilos.h"
+#include "generadorplagas.h"
 
 namespace Ui {
 class windownuevapartida;
@@ -49,9 +50,9 @@ public:
     void actualizarTablaArboles(void);
 
     bool validarInfoArbol(QString tipoArbol);
+    bool validarInfoPlagas();
 
     void protegerAdyacentes(int, int);
-
 private slots:
     void actualizarDatosGUI();
     void on_tipoAnimales_currentIndexChanged(const QString &arg1);
@@ -104,7 +105,8 @@ private:
     Matriz * matrizJuego;
     QLabel * terreno[8][8];
 
-    ControladorHilos * controlador;
+    ControladorHilos * controladorArboles;
+    GeneradorPlagas * controladorPlagas;
 };
 
 #endif // WINDOWNUEVAPARTIDA_H
