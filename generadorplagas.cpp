@@ -1,79 +1,47 @@
 #include "generadorplagas.h"
 
-GeneradorPlagas::GeneradorPlagas(ListaPlagas * pListaPlagas, Matriz * pMatrizJuego)
+GeneradorPlagas::GeneradorPlagas(ListaPlagas * pListaPlagas, Matriz * pMatrizJuego, MatrizPlagas * pMatrizPlagas)
 {
     this->estado = 4;
-    this->tipoPlagaACrear = 0;
-    this->hiloPlagas = new HiloPlagas();
-    this->hiloPlagas->matrizJuego = pMatrizJuego;
-    this->hiloPlagas->plagas = pListaPlagas->buscarPlaga("Plagas");
+    this->hiloPlagas = new HiloPlagas(pMatrizJuego, pListaPlagas->buscarPlaga("Plagas"), pMatrizPlagas);
     this->listaPlagas = pListaPlagas;
     this->matrizJuego = pMatrizJuego;
     this->tiempoCreacionPlagas = 3;
-    qDebug() << "Generador de plagas listo";
+    this->matrizPlagasTablero = pMatrizPlagas;
 }
 
 void GeneradorPlagas::run(){
     while(true){
         mutex.lock();
         if(estado == 1){
-            qDebug() << "Inicio hilo plagas";
             this->hiloPlagas->estado = true;
             this->hiloPlagas->start();
 
             this->estado = 0;
         }else if(estado == 2){
-            qDebug() << "Pausando hilo plagas";
             this->hiloPlagas->estado = false;
             this->estado = 4;
         }else if(estado == 3){
-            qDebug() << "Reanudando hilo plagas";
             this->hiloPlagas->estado = true;
             this->estado = 0;
         }else if(this->estado == 0){
-            qDebug() << "Hilo plagas";
-            plaga * tipoPlaga = selecionarTipoPlaga();
+            Plaga * tipoPlaga = selecionarTipoPlaga();
             if(tipoPlaga != NULL){
-                qDebug() << "Plaga seleccionada " + tipoPlaga->tipoPlaga;
                 int posX = 0;
                 int posY = 0;
                 for (int i = 0; i < tipoPlaga->tasaPlagas; i++) {
                     posX = aleatorio(0, 7);
                     posY = aleatorio(0, 7);
-                    qDebug() << "Dentro del for";
                     if(tipoPlaga->tipoPlaga == "Ovejas"){
-                        qDebug() << "Oveja";
-                        if(matrizJuego->estado[posX][posY] != 0 || matrizJuego->estado[posX][posY] != 1 ||matrizJuego->estado[posX][posY] != 2){
-                            if(matrizJuego->matrizJuego[posX][posY] == 10 || matrizJuego->matrizJuego[posX][posY] == 5 ||
-                                    matrizJuego->matrizJuego[posX][posY] == 3 || matrizJuego->matrizJuego[posX][posY] == 4){
-                                qDebug() << "Oveja Insertada";
-                                matrizJuego->estado[posX][posY] = 9;
-                            }
-                        }
+                        colocarEnCeldasAdyacentes(posX, posY, 9, tipoPlaga);
                     }else if(tipoPlaga->tipoPlaga == "Cuervos"){
-                        qDebug() << "Cuervo";
-                        if(matrizJuego->estado[posX][posY] != 0 || matrizJuego->estado[posX][posY] != 1 ||matrizJuego->estado[posX][posY] != 2){
-                            if(matrizJuego->matrizJuego[posX][posY] == 10 || matrizJuego->matrizJuego[posX][posY] == 5 ||
-                                    matrizJuego->matrizJuego[posX][posY] == 3 || matrizJuego->matrizJuego[posX][posY] == 4){
-                                qDebug() << "Cuervo insertado";
-                                matrizJuego->estado[posX][posY] = 7;
-                            }
-                        }
+                        colocarEnCeldasAdyacentes(posX, posY, 7, tipoPlaga);
                     }else if(tipoPlaga->tipoPlaga == "Plagas"){
-                        qDebug() << "Plagas";
-                        if(matrizJuego->estado[posX][posY] != 0 || matrizJuego->estado[posX][posY] != 1 ||matrizJuego->estado[posX][posY] != 2){
-                            if(matrizJuego->matrizJuego[posX][posY] == 10 || matrizJuego->matrizJuego[posX][posY] == 5 ||
-                                    matrizJuego->matrizJuego[posX][posY] == 3 || matrizJuego->matrizJuego[posX][posY] == 4){
-                                qDebug() << "Plagas insertado";
-                                matrizJuego->estado[posX][posY] = 8;
-                            }
-                        }
+                        colocarEnCeldasAdyacentes(posX, posY, 8, tipoPlaga);
                     }
-                    qDebug() << "Durmiendo: " + QString::number(tipoPlaga->tiempo);
                     this->sleep(tipoPlaga->tiempo);
                 }
             }else{
-                qDebug() << "Plaga no encontrada";
                 this->sleep(tiempoCreacionPlagas);
             }
         }
@@ -93,10 +61,9 @@ void GeneradorPlagas::cambiarEstado(int estadoNuevo){
     this->estado = estadoNuevo;
 }
 
-plaga * GeneradorPlagas::selecionarTipoPlaga(){
+Plaga * GeneradorPlagas::selecionarTipoPlaga(){
     int numAleatorio = aleatorio(1, 3);
-    qDebug() << QString::number(numAleatorio);
-    plaga * tipoPlaga = listaPlagas->primerNodo;
+    Plaga * tipoPlaga = listaPlagas->primerNodo;
     int probabilidad = 0;
     int rangoProbabilidades[3];
     int i = 0;
@@ -117,10 +84,105 @@ plaga * GeneradorPlagas::selecionarTipoPlaga(){
 
     int probabilidadAparezcaPlaga = aleatorio(0, probabilidad);
     if(probabilidadAparezcaPlaga < rangoProbabilidades[numAleatorio]){
-        qDebug() << "Si cayó";
         return tipoPlaga;
     }else{
-        qDebug() << "No cayó";
         return NULL;
     }
+}
+
+void GeneradorPlagas::colocarEnCeldasAdyacentes(int pPosX, int pPosY, int tipoPlaga, Plaga * pPlaga){
+    Plaga * nuevaPlaga = new Plaga(pPlaga->probabilidad, pPlaga->tasaFrutos, pPlaga->tiempoConsumeFrutos, pPlaga->tasaPlagas, pPlaga->tiempo, pPlaga->tipoPlaga);
+    if(validarPosicion(pPosX, pPosY)){
+        if(validarPlagasAdyacentes(pPosX, pPosY)){
+            matrizJuego->estado[pPosX][pPosY] = tipoPlaga;
+            matrizPlagasTablero->matrizPlagas[pPosX][pPosY] = nuevaPlaga;
+        }
+    }else {
+        if(pPosX - 1 >= 0 && pPosY - 1 >= 0){
+            if (validarPosicion(pPosX - 1, pPosY - 1)){
+                if(validarPlagasAdyacentes(pPosX - 1, pPosY - 1)){
+                    matrizJuego->estado[pPosX - 1][pPosY - 1] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX - 1][pPosY - 1] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+        if(pPosX - 1 >= 0 && pPosY >= 0){
+            if (validarPosicion(pPosX - 1, pPosY)){
+                if(validarPlagasAdyacentes(pPosX - 1, pPosY)){
+                    matrizJuego->estado[pPosX - 1][pPosY] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX - 1][pPosY] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+        if(pPosX - 1 >= 0 && pPosY + 1 < 8){
+            if (validarPosicion(pPosX - 1, pPosY + 1)){
+                if(validarPlagasAdyacentes(pPosX - 1, pPosY + 1)){
+                    matrizJuego->estado[pPosX - 1][pPosY + 1] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX - 1][pPosY + 1] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+        if(pPosX >= 0 && pPosY - 1 >= 0){
+            if (validarPosicion(pPosX, pPosY - 1)){
+                if(validarPlagasAdyacentes(pPosX, pPosY - 1)){
+                    matrizJuego->estado[pPosX][pPosY - 1] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX][pPosY - 1] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+        if(pPosX >= 0 && pPosY + 1 < 8){
+            if (validarPosicion(pPosX, pPosY + 1)){
+                if(validarPlagasAdyacentes(pPosX, pPosY + 1)){
+                    matrizJuego->estado[pPosX][pPosY + 1] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX][pPosY + 1] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+        if(pPosX + 1 < 8 && pPosY - 1 >= 0){
+            if (validarPosicion(pPosX + 1, pPosY - 1)){
+                if(validarPlagasAdyacentes(pPosX + 1, pPosY - 1)){
+                    matrizJuego->estado[pPosX + 1][pPosY - 1] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX + 1][pPosY - 1] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+        if(pPosX + 1 < 8 && pPosY >= 0){
+            if (validarPosicion(pPosX + 1, pPosY)){
+                if(validarPlagasAdyacentes(pPosX + 1, pPosY)){
+                    matrizJuego->estado[pPosX + 1][pPosY] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX + 1][pPosY] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+        if(pPosX + 1 < 8 && pPosY + 1 < 8){
+            if (validarPosicion(pPosX + 1, pPosY + 1)){
+                if(validarPlagasAdyacentes(pPosX + 1, pPosY + 1)){
+                    matrizJuego->estado[pPosX + 1][pPosY + 1] = tipoPlaga;
+                    matrizPlagasTablero->matrizPlagas[pPosX + 1][pPosY + 1] = nuevaPlaga;
+                    return;
+                }
+            }
+        }
+    }
+}
+
+bool GeneradorPlagas::validarPosicion(int posX, int posY){
+    if(matrizJuego->estado[posX][posY] == -1) //&& matrizJuego->estado[posX][posY] != 1 && matrizJuego->estado[posX][posY] != 2
+        if(matrizJuego->matrizJuego[posX][posY] == 10 || matrizJuego->matrizJuego[posX][posY] == 5 ||
+                matrizJuego->matrizJuego[posX][posY] == 3 || matrizJuego->matrizJuego[posX][posY] == 4){
+            return true;
+        }
+    return false;
+}
+
+bool GeneradorPlagas::validarPlagasAdyacentes(int pPosX, int pPosY){
+    return matrizJuego->estado[pPosX][pPosY] != 7 && matrizJuego->estado[pPosX][pPosY] != 8 &&
+            matrizJuego->estado[pPosX][pPosY] != 9;
 }

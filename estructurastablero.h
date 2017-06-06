@@ -7,16 +7,18 @@
 
 using namespace std;
 
-struct plaga{
+struct Plaga{
     int probabilidad;
     int tasaFrutos;
     int tiempoConsumeFrutos;
     int tasaPlagas;
     int tiempo;
     QString tipoPlaga;
-    plaga * siguiente;
+    Plaga * siguiente;
+    int tiempoTrancurrido = 0;
+    bool atrapadoGranjero;
 
-    plaga(int probabilidad, int tasaFrutos, int pTiempoConsumeFrutos, int pTasaPlagas, int pTiempo, QString tipoPlaga){
+    Plaga(int probabilidad, int tasaFrutos, int pTiempoConsumeFrutos, int pTasaPlagas, int pTiempo, QString tipoPlaga){
         this->probabilidad = probabilidad;
         this->tasaFrutos = tasaFrutos;
         this->tiempoConsumeFrutos = pTiempoConsumeFrutos;
@@ -24,6 +26,15 @@ struct plaga{
         this->tiempo = pTiempo;
         this->tipoPlaga = tipoPlaga;
         this->siguiente = NULL;
+        this->tiempoTrancurrido = 0;
+        this->atrapadoGranjero = false;
+    }
+};
+
+struct MatrizPlagas{
+    Plaga * matrizPlagas[8][8];
+    MatrizPlagas(){
+
     }
 };
 
@@ -83,13 +94,13 @@ struct Mercado{
 };
 
 struct ListaPlagas{
-    plaga * primerNodo;
+    Plaga * primerNodo;
 
     ListaPlagas(){
         primerNodo = NULL;
     }
 
-    void insertar(plaga * pPlaga){
+    void insertar(Plaga * pPlaga){
         if(primerNodo == NULL){
             primerNodo = pPlaga;
         }else{
@@ -97,11 +108,11 @@ struct ListaPlagas{
             primerNodo = pPlaga;
         }
     }
-    plaga * buscarPlaga(QString nombrePlaga){
+    Plaga * buscarPlaga(QString nombrePlaga){
         if(primerNodo == NULL){
             return NULL;
         }else{
-            plaga * temporal = primerNodo;
+            Plaga * temporal = primerNodo;
 
             while (temporal != NULL){
                 if(temporal->tipoPlaga == nombrePlaga){

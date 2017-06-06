@@ -4,3 +4,7 @@ HiloOvejas::HiloOvejas()
 {
 
 }
+
+void HiloOvejas::run(){
+
+}

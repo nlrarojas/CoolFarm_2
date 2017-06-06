@@ -16,9 +16,11 @@ private:
     void run(void);
 
 public:
-    HiloPlagas();
+    HiloPlagas(Matriz * pMatrizJuego, Plaga * pPlagas, MatrizPlagas * pMatrizPlagas);
     Matriz * matrizJuego;
-    plaga * plagas;
+    Plaga * plagas;
+    Granjero * granjero;
+    MatrizPlagas * matrizPlagas;
     bool estado;
     int aleatorio(void);
 };

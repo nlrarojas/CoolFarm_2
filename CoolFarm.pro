@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     hiloplagas.cpp \
     generadorplagas.cpp \
     hilocuervos.cpp \
-    hiloovejas.cpp
+    hiloovejas.cpp \
+    controladorgranjero.cpp
 
 HEADERS  += mainwindow.h \
     windownuevapartida.h \
@@ -56,7 +57,8 @@ HEADERS  += mainwindow.h \
     hiloplagas.h \
     generadorplagas.h \
     hilocuervos.h \
-    hiloovejas.h
+    hiloovejas.h \
+    controladorgranjero.h
 
 FORMS    += mainwindow.ui \
     windownuevapartida.ui

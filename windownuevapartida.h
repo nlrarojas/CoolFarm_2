@@ -17,6 +17,7 @@
 #include "hiloabb.h"
 #include "controladorhilos.h"
 #include "generadorplagas.h"
+#include "controladorgranjero.h"
 
 namespace Ui {
 class windownuevapartida;
@@ -91,7 +92,7 @@ private:
 
     MatrizArboles * matrizArboles;
     ListaNodosArbolesTerreno * listaArbolesTerreno;
-    plaga * matrizPlagas[8][8];
+    MatrizPlagas * matrizPlagas;
 
     int cantidadArbolesABB;
     int cantidadArbolesAVL;
@@ -107,6 +108,7 @@ private:
 
     ControladorHilos * controladorArboles;
     GeneradorPlagas * controladorPlagas;
+    ControladorGranjero * controladorGranjero;
 };
 
 #endif // WINDOWNUEVAPARTIDA_H

@@ -33,9 +33,9 @@ windownuevapartida::windownuevapartida(QWidget *parent) :
     ui->tipoArboles->addItem("ROJINEGRO");
 
     lista = new ListaPlagas();
-    lista->insertar(new plaga(0, 0, 0, 0, 0, "Cuervos"));
-    lista->insertar(new plaga(0, 0, 0, 0, 0, "Ovejas"));
-    lista->insertar(new plaga(0, 0, 0, 0, 0, "Plagas"));
+    lista->insertar(new Plaga(0, 0, 0, 0, 0, "Cuervos"));
+    lista->insertar(new Plaga(0, 0, 0, 0, 0, "Ovejas"));
+    lista->insertar(new Plaga(0, 0, 0, 0, 0, "Plagas"));
 
     listaArbolesTerreno = new ListaNodosArbolesTerreno();
 
@@ -67,6 +67,7 @@ windownuevapartida::windownuevapartida(QWidget *parent) :
 
     matrizJuego = new Matriz();
     matrizArboles = new MatrizArboles();
+    matrizPlagas = new MatrizPlagas();
 
     terreno[granjero->posX][granjero->posY]->setPixmap(QPixmap(":/imagenes/granjero.png"));
 
@@ -80,8 +81,11 @@ windownuevapartida::windownuevapartida(QWidget *parent) :
                                        tiposInfoArboles->buscarTipoArbol("HEAP"),   tiposInfoArboles->buscarTipoArbol("ROJINEGRO"));
     controladorArboles->start();
 
-    controladorPlagas = new GeneradorPlagas(lista, matrizJuego);
+    controladorPlagas = new GeneradorPlagas(lista, matrizJuego, matrizPlagas);
     controladorPlagas->start();
+
+    controladorGranjero= new ControladorGranjero(granjero, matrizJuego, matrizPlagas);
+    controladorGranjero->start();
 }
 
 windownuevapartida::~windownuevapartida()
@@ -90,7 +94,7 @@ windownuevapartida::~windownuevapartida()
 }
 
 void windownuevapartida::actualizarDatosGUI(){
-    plaga * plagaActualizar;
+    Plaga * plagaActualizar;
     //Actualizarción valores de las plagas
     if(tipoPlaga == 1){
         plagaActualizar = lista->buscarPlaga("Ovejas");
@@ -176,7 +180,7 @@ void windownuevapartida::actualizarDatosGUI(){
 void windownuevapartida::on_tipoAnimales_currentIndexChanged(const QString &arg1)
 {
     tipoPlaga = ui->tipoAnimales->currentIndex();
-    plaga * plagaBuscar;
+    Plaga * plagaBuscar;
     if(tipoPlaga == 1){
         plagaBuscar = lista->buscarPlaga("Ovejas");
         ui->spinBox_64->setValue(plagaBuscar->tasaPlagas);
@@ -415,7 +419,7 @@ void windownuevapartida::sembrarArbolAVL(){
                     nuevoNodoArbolesTerreno->posX = granjero->posX;
                     nuevoNodoArbolesTerreno->posY = granjero->posY;
                     listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
-                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    //matrizJuego->estado[granjero->posX][granjero->posY] += 2;
                     cantidadArbolesAVL--;
                     insertarEnTablaArboles();
                     controladorPlagas->cambiarEstado(1);
@@ -439,7 +443,7 @@ void windownuevapartida::sembrarArbolABB(){
                     NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(temporal, NULL, NULL, NULL, "ABB");
                     matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
                     matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 4;
-                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    //matrizJuego->estado[granjero->posX][granjero->posY] += 2;
                     nuevoNodoArbolesTerreno->posX = granjero->posX;
                     nuevoNodoArbolesTerreno->posY = granjero->posY;
                     listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
@@ -466,7 +470,7 @@ void windownuevapartida::sembrarArbolHEAP(){
                     NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, NULL, temporal, NULL, "HEAP");
                     matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
                     matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 10;
-                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    //matrizJuego->estado[granjero->posX][granjero->posY] += 2;
                     nuevoNodoArbolesTerreno->posX = granjero->posX;
                     nuevoNodoArbolesTerreno->posY = granjero->posY;
                     listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
@@ -493,7 +497,7 @@ void windownuevapartida::sembrarArbolRojiNegro(){
                     NodoArbolesTerreno * nuevoNodoArbolesTerreno = new NodoArbolesTerreno(NULL, NULL, NULL, temporal, "ROJINEGRO");
                     matrizArboles->Terreno[granjero->posX][granjero->posY] = nuevoNodoArbolesTerreno;
                     matrizJuego->matrizJuego[granjero->posX][granjero->posY] = 5;
-                    matrizJuego->estado[granjero->posX][granjero->posY] += 2;
+                    //matrizJuego->estado[granjero->posX][granjero->posY] += 2;
                     nuevoNodoArbolesTerreno->posX = granjero->posX;
                     nuevoNodoArbolesTerreno->posY = granjero->posY;
                     listaArbolesTerreno->insertar(nuevoNodoArbolesTerreno);
@@ -699,9 +703,9 @@ bool windownuevapartida::validarInfoArbol(QString tipoArbol){
 }
 
 bool windownuevapartida::validarInfoPlagas(){
-    plaga * plagaOveja = lista->buscarPlaga("Ovejas");
-    plaga * plagaCuervos = lista->buscarPlaga("Cuervos");
-    plaga * plagaPlagas = lista->buscarPlaga("Plagas");
+    Plaga * plagaOveja = lista->buscarPlaga("Ovejas");
+    Plaga * plagaCuervos = lista->buscarPlaga("Cuervos");
+    Plaga * plagaPlagas = lista->buscarPlaga("Plagas");
 
     if(plagaOveja->probabilidad == 0 || plagaOveja->tasaFrutos == 0 || plagaOveja->tasaPlagas== 0 ||
             plagaOveja->tiempoConsumeFrutos == 0 || plagaOveja->tiempo == 0){
@@ -721,47 +725,46 @@ bool windownuevapartida::validarInfoPlagas(){
     return true;
 }
 
-void windownuevapartida::protegerAdyacentes(int x, int y){
-    if (y-1 > -1 && x-1> -1){
-        if (matrizJuego->estado[x-1][y-1] == 1)
-            matrizJuego->estado[x-1][y-1] = 2;
-        else if(matrizJuego->estado[x-1][y-1] == -1)
-            matrizJuego->estado[x-1][y-1] = 0;
-    }if ( y-1 > -1 && x+1 < 8){
-        if (matrizJuego->estado[x+1][y-1] == 1)
-            matrizJuego->estado[x+1][y-1] = 2;
-        else if(matrizJuego->estado[x+1][y-1] == -1)
-            matrizJuego->estado[x+1][y-1] = 0;
-    }if ( y-1 > -1 ){
-        if (matrizJuego->estado[x][y-1] == 1)
-            matrizJuego->estado[x][y-1] = 2;
-        else if(matrizJuego->estado[x][y-1] == -1)
-            matrizJuego->estado[x][y-1] = 0;
-    }if (y+1 < 8 && x-1 > -1){
-        if (matrizJuego->estado[x-1][y+1] == 1)
-            matrizJuego->estado[x-1][y+1] = 2;
-        else if(matrizJuego->estado[x-1][y+1] == -1)
-            matrizJuego->estado[x-1][y+1] = 0;
-    }if ( y+1 < 8 && x+1 < 8){
-        if (matrizJuego->estado[x+1][y+1] == 1)
-            matrizJuego->estado[x+1][y+1] = 2;
-        else if(matrizJuego->estado[x+1][y+1] == -1)
-            matrizJuego->estado[x+1][y+1]= 0;
-    }if ( y+1 < 8 ){
-        if (matrizJuego->estado[x][y+1] == 1)
-            matrizJuego->estado[x][y+1] = 2;
-        else if(matrizJuego->estado[x][y+1] == -1)
-            matrizJuego->estado[x][y+1] = 0;
-    }if (x-1 > -1){
-        if (matrizJuego->estado[x-1][y] == 1)
-            matrizJuego->estado[x-1][y] = 2;
-        else if(matrizJuego->estado[x-1][y] == -1)
-            matrizJuego->estado[x-1][y] = 0;
-    }if (x+1 <8){
-        if (matrizJuego->estado[x+1][y] == 1)
-            matrizJuego->estado[x+1][y] = 2;
-        else if(matrizJuego->estado[x+1][y] == -1)
-            matrizJuego->estado[x+1][y] = 0;
+void windownuevapartida::protegerAdyacentes(int pPosX, int pPosY){
+    if(pPosX - 1 >= 0 && pPosY - 1 >= 0){
+        if(matrizJuego->estado[pPosX - 1][pPosY - 1] != 3){
+            matrizJuego->estado[pPosX - 1][pPosY - 1] = 2;
+        }
+    }
+    if(pPosX - 1 >= 0 && pPosY >= 0){
+        if(matrizJuego->estado[pPosX - 1][pPosY] != 3){
+            matrizJuego->estado[pPosX - 1][pPosY] = 2;
+        }
+    }
+    if(pPosX - 1 >= 0 && pPosY + 1 < 8){
+        if(matrizJuego->estado[pPosX - 1][pPosY + 1] != 3){
+            matrizJuego->estado[pPosX - 1][pPosY + 1] = 2;
+        }
+    }
+    if(pPosX >= 0 && pPosY - 1 >= 0){
+        if(matrizJuego->estado[pPosX][pPosY - 1] != 3){
+            matrizJuego->estado[pPosX][pPosY - 1] = 2;
+        }
+    }
+    if(pPosX >= 0 && pPosY + 1 < 8){
+        if(matrizJuego->estado[pPosX][pPosY + 1] != 3){
+            matrizJuego->estado[pPosX][pPosY + 1] = 2;
+        }
+    }
+    if(pPosX + 1 < 8 && pPosY - 1 >= 0){
+        if(matrizJuego->estado[pPosX + 1][pPosY - 1] != 3){
+            matrizJuego->estado[pPosX + 1][pPosY - 1] = 2;
+        }
+    }
+    if(pPosX + 1 < 8 && pPosY >= 0){
+        if(matrizJuego->estado[pPosX + 1][pPosY] != 3){
+            matrizJuego->estado[pPosX + 1][pPosY] = 2;
+        }
+    }
+    if(pPosX + 1 < 8 && pPosY + 1 < 8){
+        if(matrizJuego->estado[pPosX + 1][pPosY + 1] != 3){
+            matrizJuego->estado[pPosX + 1][pPosY + 1] = 2;
+        }
     }
 }
 
@@ -769,6 +772,7 @@ void windownuevapartida::on_toolButton_clicked()
 {
     controladorArboles->cambiarEstado(2);
     controladorPlagas->cambiarEstado(2);
+    controladorGranjero->estado = false;
     ui->label_estado_juego->setText("Estado: Pausado");
 }
 
@@ -776,5 +780,6 @@ void windownuevapartida::on_toolButton_8_clicked()
 {
     controladorArboles->cambiarEstado(3);
     controladorPlagas->cambiarEstado(3);
+    controladorGranjero->estado = true;
     ui->label_estado_juego->setText("Estado: Activo");
 }

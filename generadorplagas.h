@@ -17,18 +17,21 @@ private:
     QMutex mutex;
     void run(void);
     int aleatorio(int limiteInferior, int limeteSuperior);
-    plaga * selecionarTipoPlaga(void);
+    Plaga * selecionarTipoPlaga(void);
 
 public:
-    GeneradorPlagas(ListaPlagas * pListaPlagas, Matriz * pMatrizJuego);
+    GeneradorPlagas(ListaPlagas * pListaPlagas, Matriz * pMatrizJuego, MatrizPlagas * pMatrizPlagas);
     ListaPlagas * listaPlagas;
     Matriz * matrizJuego;
     HiloPlagas * hiloPlagas;
-    plaga * matrizPlagasTablero;
+    MatrizPlagas * matrizPlagasTablero;
+
     int estado;
-    int tipoPlagaACrear;
     int tiempoCreacionPlagas;    
     void cambiarEstado(int);
+    void colocarEnCeldasAdyacentes(int pPosX, int pPosY, int tipoPlaga, Plaga * pTipoPlaga);
+    bool validarPosicion(int posX, int posY);
+    bool validarPlagasAdyacentes(int pPosX, int pPosY);
 };
 
 #endif // GENERADORPLAGAS_H
