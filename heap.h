@@ -15,7 +15,7 @@ struct Heap
 
     void insertar(int dato);
     void imprimir();
-    void eliminar();
+    int eliminar();
     int maximo(int, int);
     int cantidadFrutos(void);
     int montoTotal(void);

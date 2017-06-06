@@ -56,18 +56,19 @@ void Heap::imprimir(){
     }
 }
 
-void Heap::eliminar(){
+int Heap::eliminar(){
     int tmp = this->largo;
     this->arbol[0] = this->arbol[tmp-1];
     this->arbol[tmp-1] = -1;
     largo--;
     int i = 1;
+    int dato;
     while ( i*2 <= largo){
         if (i*2+1 <= largo){
             if (this->arbol[i-1]<this->arbol[i*2-1] || this->arbol[i-1]<this->arbol[i*2]){
                 int mayor = maximo(this->arbol[i*2-1], this->arbol[i*2]);
                 if (mayor == 1){
-                    int dato = this->arbol[i-1];
+                    dato = this->arbol[i-1];
                     this->arbol[i-1] = this->arbol[i*2-1];
                     this->arbol[i*2-1] = dato;
                     i = i*2;
@@ -95,6 +96,7 @@ void Heap::eliminar(){
         else
             i = i*2+1;
     }
+    return dato;
 }
 
 

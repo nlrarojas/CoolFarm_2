@@ -74,6 +74,12 @@ private slots:
 
     void on_toolButton_8_clicked();
 
+    void on_pushButton_vender_frutos_clicked();
+
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
 private:
     Ui::windownuevapartida *ui;
 
@@ -98,6 +104,7 @@ private:
     int cantidadArbolesAVL;
     int cantitadArbolesRojiNegro;
     int cantidadArbolesHeap;
+    int cantidadDinero;
 
     QTimer * timer;
     int tipoPlaga;

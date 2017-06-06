@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="juego">
      <attribute name="title">
@@ -1269,7 +1269,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
        <rect>
         <x>680</x>
         <y>480</y>
-        <width>75</width>
+        <width>81</width>
         <height>23</height>
        </rect>
       </property>
@@ -1281,8 +1281,8 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
       <property name="geometry">
        <rect>
         <x>680</x>
-        <y>520</y>
-        <width>75</width>
+        <y>530</y>
+        <width>81</width>
         <height>23</height>
        </rect>
       </property>
@@ -1308,22 +1308,12 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
        <string>Dinero:</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="lineEdit_cantidad_frutos_vender">
-      <property name="geometry">
-       <rect>
-        <x>660</x>
-        <y>400</y>
-        <width>113</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QPushButton" name="pushButton_vender_frutos">
       <property name="geometry">
        <rect>
         <x>680</x>
         <y>430</y>
-        <width>75</width>
+        <width>81</width>
         <height>23</height>
        </rect>
       </property>
@@ -1342,6 +1332,19 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
       </property>
       <property name="text">
        <string>Cantidad Frutos</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="cantidad_frutos_vender">
+      <property name="geometry">
+       <rect>
+        <x>670</x>
+        <y>400</y>
+        <width>101</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>1000</number>
       </property>
      </widget>
      <zorder>label_10</zorder>
@@ -1385,9 +1388,9 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
      <zorder>pushButton_2</zorder>
      <zorder>lineEdit_costo_avl</zorder>
      <zorder>label_dinero</zorder>
-     <zorder>lineEdit_cantidad_frutos_vender</zorder>
      <zorder>pushButton_vender_frutos</zorder>
      <zorder>label_11</zorder>
+     <zorder>cantidad_frutos_vender</zorder>
     </widget>
    </widget>
   </widget>

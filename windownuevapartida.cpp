@@ -1,5 +1,6 @@
 #include "windownuevapartida.h"
 #include <QStringList>
+#include <QItemSelectionModel>
 
 windownuevapartida::windownuevapartida(QWidget *parent) :
     QMainWindow(parent),
@@ -59,6 +60,7 @@ windownuevapartida::windownuevapartida(QWidget *parent) :
     tipoPlaga = 0;
     tipoArbol = 0;
     cantidadEspantapajaros = 0;
+    cantidadDinero = 500;
 
     cantidadArbolesABB = 0;
     cantidadArbolesAVL = 0;
@@ -170,6 +172,8 @@ void windownuevapartida::actualizarDatosGUI(){
     ui->label_cantidad_SPLAY->setText("ROJINEGRO x " + QString::number(cantitadArbolesRojiNegro));
 
     ui->label_cantidad_espantapajaros->setText("Cantidad: " + QString::number(cantidadEspantapajaros) + "/" + QString::number(infoEspantapajaros->cantidadPorTerreno));
+
+    ui->label_dinero->setText("Dinero: " + QString::number(cantidadDinero));
 
     datosMercado();
     pintarTablero();
@@ -368,9 +372,14 @@ void windownuevapartida::on_toolButton_5_clicked()
 void windownuevapartida::comprarAbolAVL(){
     if(mercadoPlataforma->estado){
         NodoInfoArbol * temporal = tiposInfoArboles->buscarTipoArbol("AVL");
-        Avl * nuevoArbol = new Avl(temporal);
-        avlComprados->encolar(new NodoArbolAVL(nuevoArbol));
-        cantidadArbolesAVL++;
+        if(temporal->precio < cantidadDinero){
+            Avl * nuevoArbol = new Avl(temporal);
+            avlComprados->encolar(new NodoArbolAVL(nuevoArbol));
+            cantidadArbolesAVL++;
+            cantidadDinero -= temporal->precio;
+        }else{
+            mostrarMensaje("No tiene suficiente dinero");
+        }
     }else{
         mostrarMensaje("El mercado no está abierto. Tiene que esperar a que abra para poder realizar su compra");
     }
@@ -379,9 +388,14 @@ void windownuevapartida::comprarAbolAVL(){
 void windownuevapartida::comprarAbolABB(){
     if(mercadoPlataforma->estado){
         NodoInfoArbol * temporal = tiposInfoArboles->buscarTipoArbol("ABB");
-        Arbol * nuevoArbol = new Arbol(temporal);
-        abbComprados->encolar(new NodoArbolABB(nuevoArbol));
-        cantidadArbolesABB++;
+        if(temporal->precio < cantidadDinero){
+            Arbol * nuevoArbol = new Arbol(temporal);
+            abbComprados->encolar(new NodoArbolABB(nuevoArbol));
+            cantidadArbolesABB++;
+            cantidadDinero -= temporal->precio;
+        }else{
+            mostrarMensaje("No tiene suficiente dinero");
+        }
     }else{
         mostrarMensaje("El mercado no está abierto. Tiene que esperar a que abra para poder realizar su compra");
     }
@@ -390,9 +404,14 @@ void windownuevapartida::comprarAbolABB(){
 void windownuevapartida::comprarAbolHeap(){
     if(mercadoPlataforma->estado){
         NodoInfoArbol * temporal = tiposInfoArboles->buscarTipoArbol("HEAP");
-        Heap * nuevoArbol = new Heap(temporal);
-        heapComprados->encolar(new NodoArbolHeap(nuevoArbol));
-        cantidadArbolesHeap++;
+        if(temporal->precio < cantidadDinero){
+            Heap * nuevoArbol = new Heap(temporal);
+            heapComprados->encolar(new NodoArbolHeap(nuevoArbol));
+            cantidadArbolesHeap++;
+            cantidadDinero -= temporal->precio;
+        }else{
+            mostrarMensaje("No tiene suficiente dinero");
+        }
     }else{
         mostrarMensaje("El mercado no está abierto. Tiene que esperar a que abra para poder realizar su compra");
     }
@@ -401,9 +420,14 @@ void windownuevapartida::comprarAbolHeap(){
 void windownuevapartida::comprarAbolRojinegro(){
     if(mercadoPlataforma->estado){
         NodoInfoArbol * temporal = tiposInfoArboles->buscarTipoArbol("ROJINEGRO");
-        Arbol * nuevoArbol = new Arbol(temporal);
-        rojiNegroComprados->encolar(new NodoArbolABB(nuevoArbol));
-        cantitadArbolesRojiNegro++;
+        if(temporal->precio < cantidadDinero){
+            Arbol * nuevoArbol = new Arbol(temporal);
+            rojiNegroComprados->encolar(new NodoArbolABB(nuevoArbol));
+            cantitadArbolesRojiNegro++;
+            cantidadDinero -= temporal->precio;
+        }else{
+            mostrarMensaje("No tiene suficiente dinero");
+        }
     }else{
         mostrarMensaje("El mercado no está abierto. Tiene que esperar a que abra para poder realizar su compra");
     }
@@ -531,7 +555,12 @@ void windownuevapartida::on_toolButton_7_clicked()
 {
     if(mercadoPlataforma->estado){
         if(cantidadEspantapajaros < infoEspantapajaros->cantidadPorTerreno){
-            cantidadEspantapajaros++;
+            if(infoEspantapajaros->costo < cantidadDinero){
+                cantidadEspantapajaros++;
+                cantidadDinero -= infoEspantapajaros->costo;
+            }else{
+                mostrarMensaje("No tiene suficiente dinero");
+            }
         }else{
             mostrarMensaje("Ya no puede comprar más espantapajaros");
         }
@@ -786,4 +815,108 @@ void windownuevapartida::on_toolButton_8_clicked()
     controladorPlagas->cambiarEstado(3);
     controladorGranjero->estado = true;
     ui->label_estado_juego->setText("Estado: Activo");
+}
+
+void windownuevapartida::on_pushButton_vender_frutos_clicked()
+{
+    int filas = ui->tablaArbolesComprados->rowCount();
+    if(filas != 0){
+        QModelIndexList selection = ui->tablaArbolesComprados->selectionModel()->selectedRows();
+        if(selection.size() == 0){
+            mostrarMensaje("Seleccione toda la fila del arbol que desea vender");
+        }else{
+            int cantidadVender = ui->cantidad_frutos_vender->text().toInt();
+            if(!ui->cantidad_frutos_vender->text().isEmpty() || cantidadVender == 0){
+                QItemSelectionModel * select = ui->tablaArbolesComprados->selectionModel();
+
+                QString posiciones = select->selectedRows(1).value(0).data().toString();
+                QStringList pos = posiciones.split(" , ");
+                int posX = pos.at(0).toInt();
+                int posY = pos.at(1).toInt();
+
+                int cantidadFrutos = select->selectedRows(2).value(0).data().toInt();
+                if(cantidadVender < cantidadFrutos){
+                    for (int i = 0; i < cantidadVender; i++) {
+                        if(matrizArboles->Terreno[posX][posY]->tipoArbol == "ABB"){
+                            cantidadDinero += matrizArboles->Terreno[posX][posY]->abb->borrarElemento(matrizArboles->Terreno[posX][posY]->abb->raiz->precio)->precio;
+                        }else if(matrizArboles->Terreno[posX][posY]->tipoArbol == "AVL"){
+                            cantidadDinero += matrizArboles->Terreno[posX][posY]->avl->borrarElemento(matrizArboles->Terreno[posX][posY]->avl->raiz->dato)->dato;
+                        }else if(matrizArboles->Terreno[posX][posY]->tipoArbol == "HEAP"){
+                            cantidadDinero += matrizArboles->Terreno[posX][posY]->heap->eliminar();
+                        }else if(matrizArboles->Terreno[posX][posY]->tipoArbol == "ROJINEGRO"){
+                            cantidadDinero += matrizArboles->Terreno[posX][posY]->rojinegro->borrarElemento(matrizArboles->Terreno[posX][posY]->rojinegro->raiz->precio)->precio;
+                        }
+                    }
+                }else{
+                    mostrarMensaje("La cantidad a de frutos a vender es mayor que la cantidad de frutos que tiene el árbol");
+                }
+            }else{
+                mostrarMensaje("Ingrese la cantidad de frutos a vender");
+            }
+        }
+    }
+}
+
+void windownuevapartida::on_pushButton_clicked()
+{
+    int filas = ui->tablaArbolesComprados->rowCount();
+    if(filas != 0){
+        QModelIndexList selection = ui->tablaArbolesComprados->selectionModel()->selectedRows();
+        if(selection.size() == 0){
+            mostrarMensaje("Seleccione toda la fila del arbol que desea vender");
+        }else{
+            QItemSelectionModel * select = ui->tablaArbolesComprados->selectionModel();
+
+            QString posiciones = select->selectedRows(1).value(0).data().toString();
+            QStringList pos = posiciones.split(" , ");
+            int posX = pos.at(0).toInt();
+            int posY = pos.at(1).toInt();
+
+            if(matrizArboles->Terreno[posX][posY]->tipoArbol == "ABB"){
+                cantidadDinero += matrizArboles->Terreno[posX][posY]->abb->montoTotal();
+                matrizArboles->Terreno[posX][posY]->borrado = true;
+                matrizJuego->matrizJuego[posX][posY] = 11;
+            }else if(matrizArboles->Terreno[posX][posY]->tipoArbol == "AVL"){
+                cantidadDinero += matrizArboles->Terreno[posX][posY]->avl->montoTotal();
+                matrizArboles->Terreno[posX][posY]->borrado = true;
+                matrizJuego->matrizJuego[posX][posY] = 11;
+            }else if(matrizArboles->Terreno[posX][posY]->tipoArbol == "HEAP"){
+                cantidadDinero += matrizArboles->Terreno[posX][posY]->heap->montoTotal();
+                matrizArboles->Terreno[posX][posY]->borrado = true;
+                matrizJuego->matrizJuego[posX][posY] = 11;
+            }else if(matrizArboles->Terreno[posX][posY]->tipoArbol == "ROJINEGRO"){
+                cantidadDinero += matrizArboles->Terreno[posX][posY]->rojinegro->montoTotal();
+                matrizArboles->Terreno[posX][posY]->borrado = true;
+                matrizJuego->matrizJuego[posX][posY] = 11;
+            }
+        }
+    }
+}
+
+void windownuevapartida::on_pushButton_2_clicked()
+{
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if(matrizJuego->matrizJuego[i][j] == 10 || matrizJuego->matrizJuego[i][j] == 3 || matrizJuego->matrizJuego[i][j] == 4
+                    || matrizJuego->matrizJuego[i][j] == 5){
+                if(matrizArboles->Terreno[i][j]->tipoArbol == "ABB"){
+                    cantidadDinero += matrizArboles->Terreno[i][j]->abb->montoTotal();
+                    matrizArboles->Terreno[i][j]->borrado = true;
+                    matrizJuego->matrizJuego[i][j] = 11;
+                }else if(matrizArboles->Terreno[i][j]->tipoArbol == "AVL"){
+                    cantidadDinero += matrizArboles->Terreno[i][j]->avl->montoTotal();
+                    matrizArboles->Terreno[i][j]->borrado = true;
+                    matrizJuego->matrizJuego[i][j] = 11;
+                }else if(matrizArboles->Terreno[i][j]->tipoArbol == "HEAP"){
+                    cantidadDinero += matrizArboles->Terreno[i][j]->heap->montoTotal();
+                    matrizArboles->Terreno[i][j]->borrado = true;
+                    matrizJuego->matrizJuego[i][j] = 11;
+                }else if(matrizArboles->Terreno[i][j]->tipoArbol == "ROJINEGRO"){
+                    cantidadDinero += matrizArboles->Terreno[i][j]->rojinegro->montoTotal();
+                    matrizArboles->Terreno[i][j]->borrado = true;
+                    matrizJuego->matrizJuego[i][j] = 11;
+                }
+            }
+        }
+    }
 }
