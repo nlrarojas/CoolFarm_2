@@ -7,6 +7,8 @@
 #include "estructurasTablero.h"
 #include "arbolescomprados.h"
 #include "hiloplagas.h"
+#include "hilocuervos.h"
+#include "hiloovejas.h"
 #include <QDebug>
 
 using namespace std;
@@ -20,11 +22,15 @@ private:
     Plaga * selecionarTipoPlaga(void);
 
 public:
-    GeneradorPlagas(ListaPlagas * pListaPlagas, Matriz * pMatrizJuego, MatrizPlagas * pMatrizPlagas);
+    GeneradorPlagas(ListaPlagas *, Matriz *, MatrizPlagas *, MatrizArboles *);
+
     ListaPlagas * listaPlagas;
-    Matriz * matrizJuego;
-    HiloPlagas * hiloPlagas;
+    Matriz * matrizJuego;    
     MatrizPlagas * matrizPlagasTablero;
+
+    HiloPlagas * hiloPlagas;
+    HiloCuervos * hiloCuervos;
+    HiloOvejas * hiloOvejas;
 
     int estado;
     int tiempoCreacionPlagas;    

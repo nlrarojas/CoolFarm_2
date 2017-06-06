@@ -18,7 +18,7 @@ struct NodoArbolesTerreno{
     QString tipoArbol;
     int posX;
     int posY;
-
+    bool borrado;
 
     NodoArbolesTerreno(Arbol * pAbb, Avl * pAvl, Heap * pHeap, Arbol * pRojiNegro, QString pTipoArbol){
         this->abb = pAbb;
@@ -29,6 +29,7 @@ struct NodoArbolesTerreno{
         this->siguiente = NULL;
         this->posX = 0;
         this->posY = 0;
+        this->borrado = false;
     }
 };
 
@@ -213,8 +214,8 @@ struct ColaHeapComprados{
 };
 
 struct MatrizArboles{
-    NodoArbolesTerreno * Terreno[8][8];
-    MatrizArboles(){
+    NodoArbolesTerreno * Terreno[8][8];    
+    MatrizArboles(){        
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
                 Terreno[i][j] = NULL;

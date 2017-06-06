@@ -6,6 +6,7 @@
 #include <random>
 #include "arbolescomprados.h"
 #include "estructurasTablero.h"
+#include <QDebug>
 
 using namespace std;
 
@@ -16,11 +17,12 @@ private:
     void run(void);
 
 public:
-    HiloPlagas(Matriz * pMatrizJuego, Plaga * pPlagas, MatrizPlagas * pMatrizPlagas);
-    Matriz * matrizJuego;
+    HiloPlagas(Matriz * pMatrizJuego, Plaga * pPlagas, MatrizPlagas * pMatrizPlagas, MatrizArboles * pMatrizArboles);
+    Matriz * matriz;
     Plaga * plagas;
     Granjero * granjero;
     MatrizPlagas * matrizPlagas;
+    MatrizArboles * matrizArboles;
     bool estado;
     int aleatorio(void);
 };

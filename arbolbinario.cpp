@@ -256,3 +256,5 @@ int Arbol::montoTotalAuxiliar(NodoABB * nodo){
         return nodo->precio + montoTotalAuxiliar(nodo->hijoizquierdo) + montoTotalAuxiliar(nodo->hijoderecho);
     }
 }
+
+

@@ -1,13 +1,16 @@
 #include "generadorplagas.h"
 
-GeneradorPlagas::GeneradorPlagas(ListaPlagas * pListaPlagas, Matriz * pMatrizJuego, MatrizPlagas * pMatrizPlagas)
-{
-    this->estado = 4;
-    this->hiloPlagas = new HiloPlagas(pMatrizJuego, pListaPlagas->buscarPlaga("Plagas"), pMatrizPlagas);
+GeneradorPlagas::GeneradorPlagas(ListaPlagas * pListaPlagas, Matriz * pMatrizJuego, MatrizPlagas * pMatrizPlagas, MatrizArboles * pMatrizArboles)
+{    
+    this->hiloPlagas = new HiloPlagas(pMatrizJuego, pListaPlagas->buscarPlaga("Plagas"), pMatrizPlagas, pMatrizArboles);
+    this->hiloCuervos = new HiloCuervos(pMatrizJuego, pListaPlagas->buscarPlaga("Cuervos"), pMatrizPlagas, pMatrizArboles);
+    this->hiloOvejas = new HiloOvejas(pMatrizJuego, pListaPlagas->buscarPlaga("Ovejas"), pMatrizPlagas, pMatrizArboles);
+
     this->listaPlagas = pListaPlagas;
     this->matrizJuego = pMatrizJuego;
     this->tiempoCreacionPlagas = 3;
     this->matrizPlagasTablero = pMatrizPlagas;
+    this->estado = 1;
 }
 
 void GeneradorPlagas::run(){
@@ -17,12 +20,24 @@ void GeneradorPlagas::run(){
             this->hiloPlagas->estado = true;
             this->hiloPlagas->start();
 
+            this->hiloCuervos->estado = true;
+            this->hiloCuervos->start();
+
+            this->hiloOvejas->estado = true;
+            this->hiloOvejas->start();
+
             this->estado = 0;
         }else if(estado == 2){
             this->hiloPlagas->estado = false;
+            this->hiloCuervos->estado = false;
+            this->hiloOvejas->estado = false;
+
             this->estado = 4;
         }else if(estado == 3){
             this->hiloPlagas->estado = true;
+            this->hiloCuervos->estado = true;
+            this->hiloOvejas->estado = true;
+
             this->estado = 0;
         }else if(this->estado == 0){
             Plaga * tipoPlaga = selecionarTipoPlaga();

@@ -176,3 +176,39 @@ int Avl::montoTotalAuxiliar(NodoAVL * nodo){
         return nodo->dato + montoTotalAuxiliar(nodo->hijoizquierdo) + montoTotalAuxiliar(nodo->hijoderecho);
     }
 }
+
+NodoAVL * Avl::mayor(NodoAVL * arbol) {
+    if (arbol == NULL)
+        return NULL;
+    else if (arbol->hijoderecho == NULL)
+        return arbol;
+    else
+        return mayor(arbol->hijoderecho);
+}
+
+NodoAVL * Avl::borrarElemento(int ele) {
+    raiz = borrarElemento(ele, raiz);
+    return raiz;
+}
+
+NodoAVL* Avl::borrarElemento(int ele, NodoAVL * arbol) {
+    if (arbol == NULL) {
+        return NULL;
+    } else if (ele < arbol->dato)
+        arbol->hijoizquierdo = borrarElemento(ele, arbol->hijoizquierdo);
+    else if (ele > arbol->dato)
+        arbol->hijoderecho = borrarElemento(ele, arbol->hijoderecho);
+    else if (arbol->hijoizquierdo == NULL && arbol->hijoderecho == NULL)
+        arbol = NULL;
+    else if (arbol->hijoizquierdo == NULL)
+        arbol = arbol->hijoderecho;
+    else if (arbol->hijoderecho == NULL)
+        arbol = arbol->hijoizquierdo;
+    else {
+        NodoAVL * max = mayor(arbol->hijoizquierdo); // mayor de los menores
+        arbol->hijoizquierdo = borrarElemento(max->dato, arbol->hijoizquierdo);
+        arbol->dato = max->dato;
+    }
+    return arbol;
+}
+

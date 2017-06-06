@@ -17,12 +17,13 @@ private:
     int aleatorio(int limiteInferior, int limeteSuperior);
 
 public:
-    HiloOvejas();
-    MatrizArboles * matrizArboles;
+    HiloOvejas(Matriz * pMatrizJuego, Plaga * pOveja, MatrizPlagas * pMatrizPlgas, MatrizArboles * pMatrizArboles);
     Matriz * matrizJuego;
-    bool estado;
-    int tiempo;
     Plaga * oveja;
+    Granjero * granjero;
+    MatrizPlagas * matrizPlagas;
+    MatrizArboles * matrizArboles;
+    bool estado;
 };
 
 #endif // HILOOVEJAS_H

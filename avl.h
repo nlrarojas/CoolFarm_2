@@ -39,6 +39,10 @@ struct Avl
     int contadorNodos(NodoAVL *);
     int montoTotal(void);
     int montoTotalAuxiliar(NodoAVL *);
+
+    NodoAVL * mayor(NodoAVL * arbol);
+    NodoAVL * borrarElemento(int);
+    NodoAVL * borrarElemento(int, NodoAVL *);
 };
 
 #endif // AVL_H
